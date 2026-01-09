@@ -1,5 +1,10 @@
 name: Deploy MkDocs
 
+# Ensure the GITHUB_TOKEN has write access to push site files
+permissions:
+  contents: write
+  pages: write
+
 on:
   push:
     branches:
@@ -20,10 +25,16 @@ jobs:
       - name: Install dependencies
         run: pip install mkdocs mkdocs-material mkdocs-rss-plugin
 
-      - name: Configure git user (for commits from Actions)
+      - name: Configure git user
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Debug mkdocs config
+        run: |
+          pip show mkdocs mkdocs-rss-plugin || true
+          mkdocs --version
+          mkdocs build -v
 
       - name: Build & deploy
         env:
