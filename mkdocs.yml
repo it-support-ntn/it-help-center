@@ -1,0 +1,10 @@
+site_name: IT Help Center
+site_url: https://it-support-ntn.github.io/it-help-center/
+theme:
+  name: material
+plugins:
+  - search
+  - rss:
+    match_path: ".*"
+    date_from_meta:
+      as_creation: date
