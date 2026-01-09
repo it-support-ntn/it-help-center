@@ -10,8 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.10
-      - run: pip install mkdocs-material mkdocs-rss-plugin
-      - run: mkdocs gh-deploy --force
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install mkdocs mkdocs-material mkdocs-rss-plugin
+
+      - name: Configure git user (for commits from Actions)
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Build & deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mkdocs gh-deploy --force
