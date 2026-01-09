@@ -6,5 +6,6 @@ plugins:
   - search
   - rss:
       match_path: ".*"
+      feed_filename: "rss.xml"
       date_from_meta:
         as_creation: date
