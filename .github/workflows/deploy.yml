@@ -31,7 +31,7 @@ jobs:
 
           rss = PyRSS2Gen.RSS2(
               title = "IT Help Center",
-              link = "https://<your-username>.github.io/it-help-center/",
+              link = "https://it-support-ntn.github.io/it-help-center/",
               description = "Knowledgebase updates",
               lastBuildDate = datetime.datetime.now(),
               items = []
@@ -45,7 +45,7 @@ jobs:
                       title = lines[0].replace('#','').strip() if lines else file
                   rss.items.append(PyRSS2Gen.RSSItem(
                       title = title,
-                      link = f"https://<your-username>.github.io/it-help-center/{file.replace('.md','.html')}",
+                      link = f"https://it-support-ntn.github.io/it-help-center/{file.replace('.md','.html')}",
                       description = f"{title} article",
                       guid = PyRSS2Gen.Guid(file),
                       pubDate = datetime.datetime.now()
