@@ -1,10 +1,5 @@
 name: Deploy MkDocs
 
-# Ensure the GITHUB_TOKEN has write access to push site files
-permissions:
-  contents: write
-  pages: write
-
 on:
   push:
     branches:
@@ -23,20 +18,44 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install mkdocs mkdocs-material mkdocs-rss-plugin
+        run: pip install mkdocs mkdocs-material PyRSS2Gen
 
-      - name: Configure git user
+      - name: Build site
+        run: mkdocs build
+
+      - name: Generate RSS
         run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 - << 'EOF'
+          import os, datetime
+          import PyRSS2Gen
 
-      - name: Debug mkdocs config
-        run: |
-          pip show mkdocs mkdocs-rss-plugin || true
-          mkdocs --version
-          mkdocs build -v
+          rss = PyRSS2Gen.RSS2(
+              title = "IT Help Center",
+              link = "https://<your-username>.github.io/it-help-center/",
+              description = "Knowledgebase updates",
+              lastBuildDate = datetime.datetime.now(),
+              items = []
+          )
 
-      - name: Build & deploy
+          docs_path = "docs"
+          for file in os.listdir(docs_path):
+              if file.endswith(".md"):
+                  with open(os.path.join(docs_path, file), 'r') as f:
+                      lines = f.readlines()
+                      title = lines[0].replace('#','').strip() if lines else file
+                  rss.items.append(PyRSS2Gen.RSSItem(
+                      title = title,
+                      link = f"https://<your-username>.github.io/it-help-center/{file.replace('.md','.html')}",
+                      description = f"{title} article",
+                      guid = PyRSS2Gen.Guid(file),
+                      pubDate = datetime.datetime.now()
+                  ))
+
+          with open("site/rss.xml", "w") as f:
+              rss.write_xml(f)
+          EOF
+
+      - name: Deploy to GitHub Pages
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mkdocs gh-deploy --force
